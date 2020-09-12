@@ -5,7 +5,6 @@ import * as sqs from '@aws-cdk/aws-sqs'
 import * as lambda from '@aws-cdk/aws-lambda'
 import * as s3 from '@aws-cdk/aws-s3'
 import * as s3Notif from '@aws-cdk/aws-s3-notifications'
-import { REGION } from './config'
 
 const bucketName = 'all-images-bucket'
 
@@ -32,7 +31,7 @@ export class S3ThumbnailStack extends cdk.Stack {
       logRetention: logs.RetentionDays.ONE_WEEK,
       environment: {
         QUEUE_URL: queue.queueUrl,
-        REGION,
+        REGION: props?.env?.region!,
       },
     })
 
