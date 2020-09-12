@@ -1,8 +1,14 @@
 {
   "name": "s3_thumbnail",
-  "version": "0.1.0",
+  "private": true,
+  "license": "ISC",
+  "version": "1.0.0",
   "bin": {
     "s3_thumbnail": "bin/s3_thumbnail.js"
+  },
+  "author": {
+    "name": "Ryan Dsouza",
+    "email": "dsouza.ryan.11@gmail.com"
   },
   "scripts": {
     "build": "tsc",

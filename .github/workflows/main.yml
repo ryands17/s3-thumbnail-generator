@@ -9,8 +9,6 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
-    env:
-      REGION: 'us-east-1'
 
     steps:
       - name: Checkout
