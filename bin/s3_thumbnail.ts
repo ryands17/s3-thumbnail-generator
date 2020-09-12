@@ -1,7 +1,8 @@
 #!/usr/bin/env node
-import 'source-map-support/register';
-import * as cdk from '@aws-cdk/core';
-import { S3ThumbnailStack } from '../lib/s3_thumbnail-stack';
+import 'source-map-support/register'
+import * as cdk from '@aws-cdk/core'
+import { S3ThumbnailStack } from '../lib/s3_thumbnail-stack'
+import { REGION } from '../lib/config'
 
-const app = new cdk.App();
-new S3ThumbnailStack(app, 'S3ThumbnailStack');
+const app = new cdk.App()
+new S3ThumbnailStack(app, 'S3ThumbnailStack', { env: { region: REGION } })
