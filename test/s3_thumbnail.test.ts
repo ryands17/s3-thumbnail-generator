@@ -1,13 +1,45 @@
-import { expect as expectCDK, matchTemplate, MatchStyle } from '@aws-cdk/assert';
-import * as cdk from '@aws-cdk/core';
-import * as S3Thumbnail from '../lib/s3_thumbnail-stack';
+import * as cdk from '@aws-cdk/core'
+import {
+  SynthUtils,
+  expect as expectCDK,
+  haveResourceLike,
+} from '@aws-cdk/assert'
+import { S3ThumbnailStack } from '../lib/s3_thumbnail-stack'
 
-test('Empty Stack', () => {
-    const app = new cdk.App();
-    // WHEN
-    const stack = new S3Thumbnail.S3ThumbnailStack(app, 'MyTestStack');
-    // THEN
-    expectCDK(stack).to(matchTemplate({
-      "Resources": {}
-    }, MatchStyle.EXACT))
-});
+const stackName = 'S3ThumbnailStack'
+
+test('snapshot works correctly', () => {
+  const app = new cdk.App()
+  const stack = new S3ThumbnailStack(app, stackName)
+  expect(SynthUtils.toCloudFormation(stack)).toMatchSnapshot()
+})
+
+test('S3, SQS and Lambda resources are created', () => {
+  const app = new cdk.App()
+  const stack = new S3ThumbnailStack(app, stackName)
+
+  expectCDK(stack).to(
+    haveResourceLike('AWS::S3::Bucket', {
+      BucketName: 'all-images-bucket',
+    })
+  )
+
+  expectCDK(stack).to(
+    haveResourceLike('AWS::SQS::Queue', {
+      MessageRetentionPeriod: 172800,
+      QueueName: 'thumbnailPayload',
+      ReceiveMessageWaitTimeSeconds: 20,
+      VisibilityTimeout: 60,
+    })
+  )
+
+  expectCDK(stack).to(
+    haveResourceLike('AWS::Lambda::Function', {
+      Handler: 'index.handler',
+      Runtime: 'nodejs12.x',
+      MemorySize: 256,
+      ReservedConcurrentExecutions: 20,
+      Timeout: 20,
+    })
+  )
+})
