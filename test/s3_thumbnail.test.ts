@@ -8,11 +8,13 @@ import { S3ThumbnailStack } from '../lib/s3_thumbnail-stack'
 
 const stackName = 'S3ThumbnailStack'
 
-test('snapshot works correctly', () => {
-  const app = new cdk.App()
-  const stack = new S3ThumbnailStack(app, stackName)
-  expect(SynthUtils.toCloudFormation(stack)).toMatchSnapshot()
-})
+// Commented due to an issue with snapshots changing in every run
+
+// test('snapshot works correctly', () => {
+//   const app = new cdk.App()
+//   const stack = new S3ThumbnailStack(app, stackName)
+//   expect(SynthUtils.toCloudFormation(stack)).toMatchSnapshot()
+// })
 
 test('S3, SQS and Lambda resources are created', () => {
   const app = new cdk.App()
