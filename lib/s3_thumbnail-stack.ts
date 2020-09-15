@@ -33,7 +33,6 @@ export class S3ThumbnailStack extends cdk.Stack {
       logRetention: logs.RetentionDays.ONE_WEEK,
       environment: {
         QUEUE_URL: queue.queueUrl,
-        REGION: props?.env?.region!,
         PREFIX: prefix,
       },
     })
