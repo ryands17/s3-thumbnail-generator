@@ -45,3 +45,33 @@ test('S3, SQS and Lambda resources are created', () => {
     })
   )
 })
+
+test('events have been added', () => {
+  const app = new cdk.App()
+  const stack = new S3ThumbnailStack(app, stackName)
+
+  expectCDK(stack).to(haveResourceLike('AWS::Lambda::EventSourceMapping'))
+
+  expectCDK(stack).to(
+    haveResourceLike('Custom::S3BucketNotifications', {
+      BucketName: {},
+      NotificationConfiguration: {
+        QueueConfigurations: [
+          {
+            Events: ['s3:ObjectCreated:*'],
+            Filter: {
+              Key: {
+                FilterRules: [
+                  {
+                    Name: 'prefix',
+                    Value: 'photos/',
+                  },
+                ],
+              },
+            },
+          },
+        ],
+      },
+    })
+  )
+})
