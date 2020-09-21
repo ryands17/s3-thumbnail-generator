@@ -1,12 +1,6 @@
 import * as cdk from '@aws-cdk/core'
-import {
-  SynthUtils,
-  expect as expectCDK,
-  haveResourceLike,
-} from '@aws-cdk/assert'
+import { expect as expectCDK, haveResourceLike } from '@aws-cdk/assert'
 import { S3ThumbnailStack } from '../lib/s3_thumbnail-stack'
-
-const stackName = 'S3ThumbnailStack'
 
 // Commented due to an issue with snapshots changing in every run
 
@@ -17,8 +11,7 @@ const stackName = 'S3ThumbnailStack'
 // })
 
 test('S3, SQS and Lambda resources are created', () => {
-  const app = new cdk.App()
-  const stack = new S3ThumbnailStack(app, stackName)
+  const stack = createStack()
 
   expectCDK(stack).to(
     haveResourceLike('AWS::S3::Bucket', {
@@ -47,8 +40,7 @@ test('S3, SQS and Lambda resources are created', () => {
 })
 
 test('events have been added', () => {
-  const app = new cdk.App()
-  const stack = new S3ThumbnailStack(app, stackName)
+  const stack = createStack()
 
   expectCDK(stack).to(haveResourceLike('AWS::Lambda::EventSourceMapping'))
 
@@ -75,3 +67,9 @@ test('events have been added', () => {
     })
   )
 })
+
+function createStack() {
+  const stackName = 'S3ThumbnailStack'
+  const app = new cdk.App()
+  return new S3ThumbnailStack(app, stackName)
+}
