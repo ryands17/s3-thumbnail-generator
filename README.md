@@ -6,7 +6,7 @@ This is an [aws-cdk](https://aws.amazon.com/cdk/) project where you can generate
 
 ## Steps
 
-1. Rename the `.example.env` file to `.env` and replace all the values with predefined values for your stack (not mandatory).
+1. Change the region in the `cdk.context.json` to the one where your want to deploy. Default is `us-east-2`.
 
 2. Run `yarn` (recommended) or `npm install`
 

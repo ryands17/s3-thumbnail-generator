@@ -4,7 +4,6 @@ import * as eventSource from '@aws-cdk/aws-lambda-event-sources'
 import * as sqs from '@aws-cdk/aws-sqs'
 import * as lambda from '@aws-cdk/aws-lambda'
 import * as s3 from '@aws-cdk/aws-s3'
-import * as iam from '@aws-cdk/aws-iam'
 import * as s3Notif from '@aws-cdk/aws-s3-notifications'
 
 const prefix = 'photos/'
@@ -42,15 +41,7 @@ export class S3ThumbnailStack extends cdk.Stack {
       bucketName,
       removalPolicy: cdk.RemovalPolicy.DESTROY,
     })
-
-    // Allow Lambda to fetch the image from and add the thumbnail back to S3
-    handler.addToRolePolicy(
-      new iam.PolicyStatement({
-        effect: iam.Effect.ALLOW,
-        resources: [`${imagesBucket.bucketArn}/*`],
-        actions: ['s3:PutObject', 's3:GetObject'],
-      })
-    )
+    imagesBucket.grantReadWrite(handler)
 
     // Attach the queue as an event source to the Lambda
     handler.addEventSource(new eventSource.SqsEventSource(queue))
