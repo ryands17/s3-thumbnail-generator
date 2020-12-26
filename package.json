@@ -19,7 +19,7 @@
   "devDependencies": {
     "@aws-cdk/assert": "1.80.0",
     "@types/jest": "26.0.19",
-    "@types/node": "14.14.14",
+    "@types/node": "14.14.16",
     "aws-cdk": "1.80.0",
     "dotenv": "8.2.0",
     "husky": "4.3.6",
