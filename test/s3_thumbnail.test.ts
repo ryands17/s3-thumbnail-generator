@@ -1,22 +1,34 @@
 import * as cdk from '@aws-cdk/core'
-import { expect as expectCDK, haveResourceLike } from '@aws-cdk/assert'
+import {
+  expect as expectCDK,
+  haveResourceLike,
+  ResourcePart,
+} from '@aws-cdk/assert'
 import { S3ThumbnailStack } from '../lib/s3_thumbnail-stack'
+
+const MessageRetentionPeriod = 2 * 24 * 60 * 60
 
 test('S3, SQS and Lambda resources are created', () => {
   const stack = createStack()
 
   expectCDK(stack).to(
-    haveResourceLike('AWS::S3::Bucket', {
-      BucketName: 'all-images-bucket',
-    })
+    haveResourceLike(
+      'AWS::S3::Bucket',
+      {
+        Type: 'AWS::S3::Bucket',
+        UpdateReplacePolicy: 'Delete',
+        DeletionPolicy: 'Delete',
+      },
+      ResourcePart.CompleteDefinition
+    )
   )
 
   expectCDK(stack).to(
     haveResourceLike('AWS::SQS::Queue', {
-      MessageRetentionPeriod: 172800,
+      MessageRetentionPeriod,
       QueueName: 'thumbnailPayload',
       ReceiveMessageWaitTimeSeconds: 20,
-      VisibilityTimeout: 60,
+      VisibilityTimeout: 600,
     })
   )
 
@@ -24,7 +36,7 @@ test('S3, SQS and Lambda resources are created', () => {
     haveResourceLike('AWS::Lambda::Function', {
       Handler: 'index.handler',
       Runtime: 'nodejs12.x',
-      MemorySize: 256,
+      MemorySize: 512,
       ReservedConcurrentExecutions: 20,
       Timeout: 20,
     })

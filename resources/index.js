@@ -8,54 +8,55 @@ const sqs = new AWS.SQS({
 })
 
 exports.handler = async event => {
-  try {
-    for (let message of event.Records) {
+  const results = await Promise.allSettled(
+    event.Records.map(async message => {
       const body = JSON.parse(message.body)
 
       if (Array.isArray(body.Records) && body.Records[0].s3) {
-        const objectName = decodeURIComponent(
-          body.Records[0].s3.object.key.replace(/\+/g, ' ')
-        )
-        const bucketName = body.Records[0].s3.bucket.name
-        console.log({ objectName, bucketName })
+        const { s3 } = body.Records[0]
+        const objectName = decodeURIComponent(s3.object.key.replace(/\+/g, ' '))
+        const bucketName = s3.bucket.name
         try {
           await resizeAndSaveImage({ objectName, bucketName })
-          await deleteMessageFromQueue(message.receiptHandle)
-        } catch (e) {
-          console.log('an error occured!')
-          console.error(e)
+          return { receiptHandle: message.receiptHandle, objectName }
+        } catch (error) {
+          handleError(
+            `Message ${message.receiptHandle} failed with parameters: ${bucketName}, ${objectName}`
+          )
         }
-      } else {
-        await deleteMessageFromQueue(message.receiptHandle)
       }
-    }
+    })
+  )
 
-    return {
-      statusCode: 200,
-      body: JSON.stringify('success!'),
-    }
-  } catch (e) {
-    console.error(e)
-    return {
-      statusCode: 500,
-      error: JSON.stringify('Server error!'),
-    }
+  const failedMessages = results.filter(r => r.status === 'rejected')
+  const successfulMessages = results.filter(r => r.status === 'fulfilled')
+  if (failedMessages.length) {
+    await Promise.allSettled(
+      successfulMessages.map(receiptHandle =>
+        deleteMessageFromQueue(receiptHandle)
+      )
+    )
+    handleError(failedMessages.map(r => r.reason).join(','))
   }
+
+  const successMessage = `Succesfully processed ${successfulMessages.map(
+    m => m.value.objectName
+  )}`
+  console.log(successMessage)
+  return successMessage
 }
 
 async function resizeAndSaveImage({ objectName, bucketName }) {
   const objectWithoutPrefix = objectName.replace(prefix, '')
   const typeMatch = objectWithoutPrefix.match(/\.([^.]*)$/)
   if (!typeMatch) {
-    console.log('Could not determine the image type.')
-    return
+    handleError('Could not determine the image type.')
   }
 
   // Check that the image type is supported
   const imageType = typeMatch[1].toLowerCase()
-  if (imageType !== 'jpg' && imageType !== 'png') {
-    console.log(`Unsupported image type: ${imageType}`)
-    return
+  if (!['jpeg', 'jpg', 'png'].includes(imageType)) {
+    handleError(`Unsupported image type: ${imageType}`)
   }
 
   // Download the image
@@ -90,4 +91,9 @@ function deleteMessageFromQueue(receiptHandle) {
       })
       .promise()
   }
+}
+
+function handleError(err) {
+  console.error(err)
+  throw Error(err)
 }

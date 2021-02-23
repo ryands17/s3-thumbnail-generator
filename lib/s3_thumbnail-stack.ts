@@ -7,7 +7,6 @@ import * as s3 from '@aws-cdk/aws-s3'
 import * as s3Notif from '@aws-cdk/aws-s3-notifications'
 
 const prefix = 'photos/'
-const bucketName = 'all-images-bucket'
 
 export class S3ThumbnailStack extends cdk.Stack {
   constructor(scope: cdk.Construct, id: string, props?: cdk.StackProps) {
@@ -17,7 +16,7 @@ export class S3ThumbnailStack extends cdk.Stack {
     const queue = new sqs.Queue(this, 'thumbnailQueue', {
       queueName: 'thumbnailPayload',
       receiveMessageWaitTime: cdk.Duration.seconds(20),
-      visibilityTimeout: cdk.Duration.seconds(60),
+      visibilityTimeout: cdk.Duration.seconds(600),
       retentionPeriod: cdk.Duration.days(2),
     })
 
@@ -27,7 +26,7 @@ export class S3ThumbnailStack extends cdk.Stack {
       code: lambda.Code.fromAsset('resources'),
       handler: 'index.handler',
       timeout: cdk.Duration.seconds(20),
-      memorySize: 256,
+      memorySize: 512,
       reservedConcurrentExecutions: 20,
       logRetention: logs.RetentionDays.ONE_WEEK,
       environment: {
@@ -38,8 +37,8 @@ export class S3ThumbnailStack extends cdk.Stack {
 
     // S3 bucket for storing images
     const imagesBucket = new s3.Bucket(this, 'allImagesBucket', {
-      bucketName,
       removalPolicy: cdk.RemovalPolicy.DESTROY,
+      autoDeleteObjects: true,
     })
     imagesBucket.grantReadWrite(handler)
 
@@ -49,9 +48,7 @@ export class S3ThumbnailStack extends cdk.Stack {
     // Attach the queue to react to S3 object creates
     imagesBucket.addObjectCreatedNotification(
       new s3Notif.SqsDestination(queue),
-      {
-        prefix,
-      }
+      { prefix }
     )
   }
 }
