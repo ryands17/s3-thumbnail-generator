@@ -17,10 +17,10 @@
     "cdk": "cdk"
   },
   "devDependencies": {
-    "@aws-cdk/assert": "1.117.0",
+    "@aws-cdk/assert": "1.121.0",
     "@types/jest": "26.0.24",
     "@types/node": "15.12.2",
-    "aws-cdk": "1.117.0",
+    "aws-cdk": "1.121.0",
     "dotenv": "10.0.0",
     "husky": "7.0.2",
     "jest": "27.0.6",
@@ -31,11 +31,11 @@
     "typescript": "4.3.5"
   },
   "dependencies": {
-    "@aws-cdk/aws-lambda": "1.117.0",
-    "@aws-cdk/aws-lambda-event-sources": "1.117.0",
-    "@aws-cdk/aws-s3": "1.117.0",
-    "@aws-cdk/aws-sqs": "1.117.0",
-    "@aws-cdk/core": "1.117.0",
+    "@aws-cdk/aws-lambda": "1.121.0",
+    "@aws-cdk/aws-lambda-event-sources": "1.121.0",
+    "@aws-cdk/aws-s3": "1.121.0",
+    "@aws-cdk/aws-sqs": "1.121.0",
+    "@aws-cdk/core": "1.121.0",
     "source-map-support": "0.5.19"
   },
   "prettier": {
